@@ -1,2 +1,2 @@
 # chat-server
-Chat server using nodejs, sockjs
+Chat server using nodejs
