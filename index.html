@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html ng-app="chatApp">
   <head>
     <title>Chat Application</title>
     <style>
@@ -10,24 +10,33 @@
       #messages { list-style-type: none; margin: 0; padding: 0; }
       #messages li { padding: 5px 10px; }
     </style>
+    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+    <script src="http://code.angularjs.org/snapshot/angular.js"></script>
   </head>
   <body>
-    <ul id="messages"></ul>
+    <div ng-controller="chatController"><ul id="messages" class="messages"><li ng-repeat="message in messages">{{message.msg}}</li><ul></div>
     <form action="">
       <input id="message" autocomplete="off" /><button>Send</button>
     </form>
-    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
-    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
-    <script>
-      var socket = io();
-      $('form').submit(function(){
-        socket.emit('chat message', $('#message').val());
-        $('#message').val('');
-        return false;
-      });
-      socket.on('chat message', function(msg){
-        $('#messages').append($('<li>').text(msg));
-      });
+    <script type="text/javascript">
+        var socket = io();
+        var id = 1;//need better solution for this. will work on this now.
+
+        $('form').submit(function(){
+            socket.emit('chat message', {'msg': $('#message').val(),'id': id});
+            id+=1;
+            $('#message').val('');
+            return false;
+        });
+        angular.module('chatApp', [])
+          .controller('chatController', ['$scope', function ($scope) {
+              $scope.messages = [];
+              socket.on('chat message', function(msg){
+                  $scope.messages.push(msg)
+                  $scope.$apply();
+              });
+        }]);
     </script>
   </body>
 </html>
